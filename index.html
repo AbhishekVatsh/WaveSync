@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WaveSync</title>
+<style>
+  :root { --bg: #232323; --panel: #2c2c2c; --text: #d6d6d6; --dim: #8a8a8a; --accent: #2d8ceb;
+          --ok: #4caf72; --warn: #e0b040; --err: #e05a50; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 14px; background: var(--bg); color: var(--text);
+         font: 12px/1.45 -apple-system, "Segoe UI", sans-serif; }
+  h1 { font-size: 14px; margin: 0 0 2px; letter-spacing: .3px; }
+  .lead { color: var(--dim); margin: 0 0 14px; }
+  fieldset { border: 1px solid #3a3a3a; border-radius: 6px; padding: 8px 10px; margin: 0 0 10px; }
+  legend { color: var(--dim); padding: 0 4px; }
+  label { display: block; padding: 3px 0; cursor: pointer; }
+  button { width: 100%; padding: 9px; border: 0; border-radius: 6px; background: var(--accent);
+           color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  .status { margin: 12px 0; padding: 8px 10px; border-radius: 6px; background: var(--panel);
+            white-space: pre-wrap; min-height: 18px; }
+  .status.ok { border-left: 3px solid var(--ok); }
+  .status.warn { border-left: 3px solid var(--warn); }
+  .status.error { border-left: 3px solid var(--err); }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 6px 4px; border-bottom: 1px solid #333; vertical-align: top; }
+  td:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td:first-child { word-break: break-all; }
+  .sub { color: var(--dim); font-size: 11px; }
+  .scene { margin: 12px 0 2px; color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+  tr.ref td:last-child { color: var(--accent); }
+  tr.ok td:last-child { color: var(--ok); }
+  tr.low td:last-child { color: var(--warn); }
+  tr.fail td:last-child { color: var(--err); }
+  .foot { color: var(--dim); font-size: 10.5px; margin-top: 14px; word-break: break-all; }
+  .foot.error { color: var(--err); }
+</style>
+</head>
+<body>
+  <h1>WaveSync</h1>
+  <p class="lead">Lines up cameras and separate mic audio by matching their waveforms.</p>
+
+  <fieldset>
+    <legend>Clips to sync</legend>
+    <label><input type="radio" name="scope" id="scope-sel" checked> Selected clips</label>
+    <label><input type="radio" name="scope" id="scope-all"> All clips in the sequence</label>
+  </fieldset>
+  <fieldset>
+    <legend>Options</legend>
+    <label><input type="checkbox" id="backup" checked> Back up the sequence first</label>
+  </fieldset>
+
+  <button id="sync">Sync</button>
+  <div id="status" class="status">Put each camera and each mic on its own track, select them, then press Sync.</div>
+  <div id="results"></div>
+  <div id="ffmpeg" class="foot"></div>
+
+  <script src="js/synccore.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

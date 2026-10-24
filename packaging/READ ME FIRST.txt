@@ -1,0 +1,68 @@
+WaveSync for Adobe Premiere Pro
+===============================
+
+WaveSync lines up your camera clips and separately recorded audio by
+matching their waveforms, like PluralEyes. It works right inside the
+Premiere Pro timeline. It handles multicam shoots, podcasts, and
+interviews, including shoots with many separate takes.
+
+Works with Premiere Pro 2022 and newer.
+
+
+INSTALL
+-------
+
+1. Install ffmpeg (free; WaveSync uses it to read audio). One time only.
+
+   Mac:      Install Homebrew from https://brew.sh, then open Terminal
+             and run:   brew install ffmpeg
+
+   Windows:  Open Command Prompt and run:   winget install Gyan.FFmpeg
+
+2. Unzip this folder, then double-click the installer:
+
+   Mac:      "Install WaveSync (Mac).command"
+             If macOS says it can't be opened: right-click the file,
+             choose Open, then click Open again.
+
+   Windows:  "Install WaveSync (Windows).bat"
+             If Windows SmartScreen appears: click "More info",
+             then "Run anyway".
+
+3. Restart Premiere Pro and open:  Window > Extensions > WaveSync
+
+
+HOW TO USE
+----------
+
+1. Put your clips in a sequence (rough placement is fine):
+     - each camera on its own track (Cam A on V1, Cam B on V2...)
+     - each audio recorder on its own audio track
+   Takes from the same camera or recorder go on the same track.
+
+2. Select the clips, or choose "All clips in the sequence".
+
+3. Keep "Back up the sequence first" ticked, and press Sync.
+
+WaveSync groups matching camera clips and audio takes into scenes,
+syncs each scene, and lays the scenes out in order on the timeline.
+
+Results:
+  green   = synced
+  yellow  = synced, but give it a quick check
+  red     = no match found (the clip is placed in order, but not synced)
+
+To undo: use the backup copy of the sequence in your Project panel.
+
+
+GOOD TO KNOW
+------------
+
+- Clips with speed changes, nested sequences, and graphics are skipped.
+- WaveSync won't move a clip on top of another clip. If something is
+  in the way, it stops and tells you which clips.
+- Very long takes from devices with drifting clocks show a "drift"
+  note. Drift is reported but not corrected yet.
+- To uninstall, delete the "com.wavesync.panel" folder from:
+    Mac:      ~/Library/Application Support/Adobe/CEP/extensions/
+    Windows:  %APPDATA%\Adobe\CEP\extensions\
