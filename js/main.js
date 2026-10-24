@@ -181,7 +181,7 @@
       if (unmatched.length) msg += ' ' + unmatched.length + ' file(s) had no match and were placed after their neighbours.';
       if (res.maxErr > 0.021) msg += ' Note: ' + res.worst + ' landed ' + Math.round(res.maxErr * 1000) + ' ms off (frame snapping).';
       if (skipped.length) msg += ' Skipped: ' + skipped.join(', ') + '.';
-      if (res.backup) msg += ' A backup copy of the sequence is in your project.';
+      if (res.backup) msg += ' Backup saved as "' + res.backup + '".';
       setStatus(msg, unmatched.length ? 'warn' : 'ok');
     } catch (err) {
       setStatus(err.message, 'error');

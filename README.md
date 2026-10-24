@@ -39,7 +39,7 @@ WaveSync compares every file with every other file. Matching files are grouped i
 | (check) (yellow) | Synced, but give it a quick look |
 | No match found (red) | No matching audio. The clip is placed in order but not synced |
 
-To undo, use the backup copy of the sequence in your Project panel.
+To undo, open the backup sequence ("<your sequence> - Backup") in your Project panel. Your original sequence stays open while you sync.
 
 ## Limits
 

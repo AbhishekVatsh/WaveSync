@@ -68,6 +68,35 @@ var WaveSync = (function () {
 
   function overlaps(a0, a1, b0, b1) { return a0 < b1 - 0.001 && b0 < a1 - 0.001; }
 
+  function sequenceNames() {
+    var names = {}, seqs = app.project.sequences;
+    for (var i = 0; i < seqs.numSequences; i++) names[seqs[i].name] = true;
+    return names;
+  }
+
+  /*
+   * Copies seq as "<name> - Backup" (or "- Backup 2", ...). Premiere switches to the new
+   * copy after clone(), so the original is made active again. Returns the backup's name.
+   */
+  function backupSequence(seq) {
+    var before = {}, seqs = app.project.sequences, i, copy = null;
+    for (i = 0; i < seqs.numSequences; i++) before[seqs[i].sequenceID] = true;
+    seq.clone();
+    seqs = app.project.sequences;
+    for (i = 0; i < seqs.numSequences; i++) if (!before[seqs[i].sequenceID]) { copy = seqs[i]; break; }
+    if (!copy) return '';
+
+    var names = sequenceNames(), base = seq.name + ' - Backup', name = base, n = 2;
+    while (names[name]) name = base + ' ' + n++;
+    try { copy.projectItem.name = name; } catch (e1) { try { copy.name = name; } catch (e2) {} }
+
+    try { app.project.activeSequence = seq; } catch (e3) {}
+    if (app.project.activeSequence.sequenceID !== seq.sequenceID) {
+      try { app.project.openSequence(seq.sequenceID); } catch (e4) {}
+    }
+    return name;
+  }
+
   /*
    * json: { backup: bool, moves: [{ nodeId, type, track, start, end, target, name }] }
    * Moves are done in two phases (everything to a free area past the end of the
@@ -105,7 +134,7 @@ var WaveSync = (function () {
       if (problems.length)
         return toJSON({ ok: false, error: 'Clips would overlap after syncing. Put each camera/mic on its own track.', details: problems });
 
-      if (data.backup) seq.clone();
+      var backupName = data.backup ? backupSequence(seq) : '';
 
       var maxEnd = 0, minTarget = Infinity;
       eachClip(seq, function (c) { if (c.end.seconds > maxEnd) maxEnd = c.end.seconds; });
@@ -140,7 +169,7 @@ var WaveSync = (function () {
         var err = Math.abs(cl.start.seconds - m.target);
         if (err > maxErr) { maxErr = err; worst = m.name; }
       }
-      return toJSON({ ok: true, moved: moves.length, missing: missing, maxErr: maxErr, worst: worst, backup: !!data.backup });
+      return toJSON({ ok: true, moved: moves.length, missing: missing, maxErr: maxErr, worst: worst, backup: backupName });
     } catch (e) {
       return toJSON({ ok: false, error: 'applyMoves: ' + e + (e.line ? ' (line ' + e.line + ')' : '') });
     }

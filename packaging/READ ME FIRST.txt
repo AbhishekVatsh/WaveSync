@@ -52,7 +52,8 @@ Results:
   yellow  = synced, but give it a quick check
   red     = no match found (the clip is placed in order, but not synced)
 
-To undo: use the backup copy of the sequence in your Project panel.
+To undo: open the backup sequence ("<your sequence> - Backup")
+in your Project panel. Your original sequence stays open.
 
 
 GOOD TO KNOW
