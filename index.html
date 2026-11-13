@@ -4,58 +4,150 @@
 <meta charset="utf-8">
 <title>WaveSync</title>
 <style>
-  :root { --bg: #232323; --panel: #2c2c2c; --text: #d6d6d6; --dim: #8a8a8a; --accent: #2d8ceb;
+  :root { --bg: #232323; --panel: #2c2c2c; --line: #3a3a3a; --text: #d6d6d6; --dim: #8a8a8a; --accent: #2d8ceb;
           --ok: #4caf72; --warn: #e0b040; --err: #e05a50; }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body { margin: 0; padding: 14px; background: var(--bg); color: var(--text);
          font: 12px/1.45 -apple-system, "Segoe UI", sans-serif; }
   h1 { font-size: 14px; margin: 0 0 2px; letter-spacing: .3px; }
+  h2 { font-size: 10.5px; margin: 0 0 8px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; font-weight: 600; }
   .lead { color: var(--dim); margin: 0 0 14px; }
-  fieldset { border: 1px solid #3a3a3a; border-radius: 6px; padding: 8px 10px; margin: 0 0 10px; }
+  fieldset { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin: 0 0 10px; }
   legend { color: var(--dim); padding: 0 4px; }
   label { display: block; padding: 3px 0; cursor: pointer; }
-  button { width: 100%; padding: 9px; border: 0; border-radius: 6px; background: var(--accent);
-           color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
-  button:disabled { opacity: .5; cursor: default; }
-  .status { margin: 12px 0; padding: 8px 10px; border-radius: 6px; background: var(--panel);
-            white-space: pre-wrap; min-height: 18px; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:disabled { opacity: .45; cursor: default; }
+  .primary { width: 100%; padding: 9px; border: 0; border-radius: 6px; background: var(--accent);
+             color: #fff; font-weight: 600; font-size: 13px; }
+  .secondary { padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  .status { margin: 12px 0; padding: 8px 10px; border-radius: 6px; background: var(--panel); white-space: pre-wrap; }
   .status.ok { border-left: 3px solid var(--ok); }
   .status.warn { border-left: 3px solid var(--warn); }
   .status.error { border-left: 3px solid var(--err); }
-  table { width: 100%; border-collapse: collapse; }
-  td { padding: 6px 4px; border-bottom: 1px solid #333; vertical-align: top; }
-  td:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  td:first-child { word-break: break-all; }
   .sub { color: var(--dim); font-size: 11px; }
-  .scene { margin: 12px 0 2px; color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+  .foot { color: var(--dim); font-size: 10.5px; margin-top: 14px; word-break: break-all; }
+  .foot.error { color: var(--err); }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+  .stats div { background: var(--panel); border-radius: 6px; padding: 8px 4px; text-align: center; }
+  .stats b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .stats span { color: var(--dim); font-size: 10px; text-transform: uppercase; letter-spacing: .4px; }
+  #st-synced { color: var(--ok); }
+  .card { background: var(--panel); border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .field { padding: 0; }
+  .field span { display: block; color: var(--dim); font-size: 10.5px; margin-bottom: 2px; }
+  select { width: 100%; padding: 4px 6px; border-radius: 5px; border: 1px solid var(--line);
+           background: var(--bg); color: var(--text); font: inherit; }
+  .check { margin-top: 8px; color: var(--dim); }
+  .seg { display: flex; gap: 0; margin-bottom: 6px; }
+  .seg button { flex: 1; padding: 6px; border: 1px solid var(--line); background: var(--bg); }
+  .seg button:first-child { border-radius: 6px 0 0 6px; }
+  .seg button:last-child { border-radius: 0 6px 6px 0; border-left: 0; }
+  .seg button.on { background: #3d3d3d; font-weight: 600; }
+  .row { display: flex; gap: 6px; }
+  .row > * { flex: 1; }
+
+  table { width: 100%; border-collapse: collapse; }
+  #devices td { padding: 4px 2px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  #devices tr:last-child td { border-bottom: 0; }
+  #devices .kind { width: 16px; color: var(--dim); text-align: center; }
+  #devices .dev { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #devices select { width: 82px; padding: 2px 4px; }
+  .swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); padding: 0; display: block; }
+  .nudge { white-space: nowrap; }
+  .nudge button { width: 18px; height: 20px; padding: 0; border: 1px solid var(--line); background: var(--bg); }
+  .nudge button:first-child { border-radius: 4px 0 0 4px; }
+  .nudge button:nth-child(2) { border-radius: 0 4px 4px 0; border-left: 0; margin-right: 3px; }
+  .palette { position: absolute; z-index: 10; display: grid; grid-template-columns: repeat(4, 22px); gap: 6px;
+             padding: 8px; background: #1b1b1b; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.5); }
+  .palette button { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; padding: 0; }
+  .palette button.on { border-color: #fff; }
+
+  details { margin-bottom: 10px; }
+  summary { cursor: pointer; color: var(--dim); font-size: 11px; padding: 4px 0; }
+  .scene { margin: 10px 0 2px; color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+  table.info td { padding: 5px 4px; border-bottom: 1px solid #333; vertical-align: top; }
+  table.info td:last-child { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  table.info td:first-child { word-break: break-all; }
   tr.ref td:last-child { color: var(--accent); }
   tr.ok td:last-child { color: var(--ok); }
   tr.low td:last-child { color: var(--warn); }
   tr.fail td:last-child { color: var(--err); }
-  .foot { color: var(--dim); font-size: 10.5px; margin-top: 14px; word-break: break-all; }
-  .foot.error { color: var(--err); }
 </style>
 </head>
 <body>
-  <h1>WaveSync</h1>
-  <p class="lead">Lines up cameras and separate mic audio by matching their waveforms.</p>
+  <div id="setup">
+    <h1>WaveSync</h1>
+    <p class="lead">Lines up cameras and separate mic audio by matching their waveforms, then gives every device its own track.</p>
 
-  <fieldset>
-    <legend>Clips to sync</legend>
-    <label><input type="radio" name="scope" id="scope-sel" checked> Selected clips</label>
-    <label><input type="radio" name="scope" id="scope-all"> All clips in the sequence</label>
-  </fieldset>
-  <fieldset>
-    <legend>Options</legend>
-    <label><input type="checkbox" id="backup" checked> Back up the sequence first</label>
-  </fieldset>
+    <fieldset>
+      <legend>Clips to sync</legend>
+      <label><input type="radio" name="scope" id="scope-sel" checked> Selected clips</label>
+      <label><input type="radio" name="scope" id="scope-all"> All clips in the sequence</label>
+    </fieldset>
+    <fieldset>
+      <legend>Options</legend>
+      <label><input type="checkbox" id="backup" checked> Back up the sequence first</label>
+    </fieldset>
 
-  <button id="sync">Sync</button>
-  <div id="status" class="status">Put each camera and each mic on its own track, select them, then press Sync.</div>
-  <div id="results"></div>
-  <div id="ffmpeg" class="foot"></div>
+    <button id="sync" class="primary">Sync</button>
+    <div id="status" class="status">Put your clips in a sequence (one track or many, rough placement is fine), select them, then press Sync.</div>
+    <div id="ffmpeg" class="foot"></div>
+  </div>
+
+  <div id="report" hidden>
+    <div class="stats">
+      <div><b id="st-synced">0</b><span>Clips synced</span></div>
+      <div><b id="st-time">0s</b><span>Time taken</span></div>
+      <div><b id="st-failed">0</b><span>Didn't sync</span></div>
+    </div>
+
+    <section class="card">
+      <h2>Settings for this sequence</h2>
+      <div class="grid">
+        <label class="field"><span>Camera audio</span>
+          <select id="set-cameraAudio"><option value="keep">Keep</option><option value="mute">Mute</option><option value="delete">Delete</option></select></label>
+        <label class="field"><span>Unused audio</span>
+          <select id="set-unusedAudio"><option value="park">Parked at end</option><option value="inline">Keep in order</option><option value="remove">Remove</option></select></label>
+        <label class="field"><span>Trim audio</span>
+          <select id="set-trimAudio"><option value="video">To video</option><option value="off">Full length</option></select></label>
+        <label class="field"><span>Link groups</span>
+          <select id="set-link"><option value="camera">Camera + its audio</option><option value="mics">Camera + mic audio</option></select></label>
+        <label class="field"><span>Track layout</span>
+          <select id="set-layout"><option value="device">Per device</option><option value="compact">Compact</option></select></label>
+      </div>
+      <label class="check"><input type="checkbox" id="set-remember"> Use these settings from now on</label>
+    </section>
+
+    <section class="card">
+      <h2>Sequences</h2>
+      <div class="seg">
+        <button id="seq-synced" class="on">Synced</button>
+        <button id="seq-original">Original</button>
+      </div>
+      <button id="seq-duplicate" class="secondary" style="width:100%">Duplicate sequence</button>
+    </section>
+
+    <section class="card">
+      <h2>Track order · top first</h2>
+      <table id="devices"></table>
+    </section>
+
+    <details>
+      <summary>More info</summary>
+      <div id="results"></div>
+    </details>
+
+    <div id="status2" class="status" hidden></div>
+    <div class="row"><button id="done" class="secondary">Done</button></div>
+  </div>
+
+  <div id="palette" class="palette" hidden></div>
 
   <script src="js/synccore.js"></script>
+  <script src="js/layout.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

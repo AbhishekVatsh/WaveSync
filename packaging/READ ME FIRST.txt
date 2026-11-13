@@ -35,33 +35,41 @@ INSTALL
 HOW TO USE
 ----------
 
-1. Put your clips in a sequence (rough placement is fine):
-     - each camera on its own track (Cam A on V1, Cam B on V2...)
-     - each audio recorder on its own audio track
-   Takes from the same camera or recorder go on the same track.
+1. Put all your camera clips and audio files in a sequence. They can
+   all go on one track, or each device on its own track. Rough
+   placement is fine.
 
 2. Select the clips, or choose "All clips in the sequence".
 
 3. Keep "Back up the sequence first" ticked, and press Sync.
 
-WaveSync groups matching camera clips and audio takes into scenes,
-syncs each scene, and lays the scenes out in order on the timeline.
+WaveSync groups matching camera clips and audio takes into scenes and
+rebuilds the timeline:
+  - each camera and each audio recorder gets its own track
+  - clips that would overlap move to an extra track
+  - each device gets its own color label
 
-Results:
-  green   = synced
-  yellow  = synced, but give it a quick check
-  red     = no match found (the clip is placed in order, but not synced)
+After syncing, the panel shows a report where you can change these
+settings, and the timeline updates straight away:
+  Camera audio    Keep / Mute / Delete
+  Unused audio    Parked at end / Keep in order / Remove
+  Trim audio      To video / Full length
+  Link groups     Camera + its audio / Camera + mic audio
+  Track layout    Per device / Compact
+  Track order     color, nudge one frame earlier or later, and
+                  which tracks each device uses (swaps devices)
 
 To undo: open the backup sequence ("<your sequence> - Backup")
-in your Project panel. Your original sequence stays open.
+in your Project panel, or press "Original" in the report.
 
 
 GOOD TO KNOW
 ------------
 
-- Clips with speed changes, nested sequences, and graphics are skipped.
-- WaveSync won't move a clip on top of another clip. If something is
-  in the way, it stops and tells you which clips.
+- Clips are placed again at full length, so trims made before syncing
+  are not kept. The backup sequence has your original.
+- Clips with speed changes, nested sequences, and graphics are left
+  where they are. The synced layout starts above them.
 - Very long takes from devices with drifting clocks show a "drift"
   note. Drift is reported but not corrected yet.
 - To uninstall, delete the "com.wavesync.panel" folder from:

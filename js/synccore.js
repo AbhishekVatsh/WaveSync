@@ -254,17 +254,18 @@
    * the matches are joined into groups ("scenes") — e.g. one camera clip plus its audio take,
    * or a whole multicam podcast. No single master recording is needed.
    *
-   * files: [{ id, pcm, env?, audioOnly?, tracks?: ['V1', 'A1', ...] }]
-   * Files whose clips all sit on the same single track are treated as one device recording
-   * one after another, so they are never matched against each other (retakes of the same
-   * script would otherwise look alike).
+   * files: [{ id, pcm, env?, audioOnly?, tracks?: ['V1', 'A1', ...], sig? }]
+   * Files that sit alone on the same track and look like the same device (same sig) are
+   * takes recorded one after another, so they are never matched against each other
+   * (retakes of the same script would otherwise look alike).
    */
   function candidatePairs(files) {
     var pairs = [];
     for (var i = 0; i < files.length; i++) {
       for (var j = i + 1; j < files.length; j++) {
         var a = files[i], b = files[j];
-        if (a.tracks && b.tracks && a.tracks.length === 1 && b.tracks.length === 1 && a.tracks[0] === b.tracks[0]) continue;
+        if (a.tracks && b.tracks && a.tracks.length === 1 && b.tracks.length === 1 && a.tracks[0] === b.tracks[0] &&
+            (a.sig === undefined || a.sig === b.sig)) continue;
         pairs.push([a, b]);
       }
     }

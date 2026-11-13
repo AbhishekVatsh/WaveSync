@@ -26,33 +26,53 @@ The installer also installs [ffmpeg](https://ffmpeg.org), which WaveSync uses to
 
 ## Use
 
-1. Put the clips in a sequence, with **each camera and each audio recorder on its own track** (for example, Cam A on V1/A1, Cam B on V2/A2, lav recorder on A3). Takes from the same device go on the same track. Rough placement is fine.
+1. Put all your camera clips and audio files in a sequence. They can all go on one track, or you can give each device its own track. Rough placement is fine.
 2. Select the clips, or choose "All clips in the sequence".
 3. Keep **Back up the sequence first** ticked, and press **Sync**.
 
-WaveSync compares every file with every other file. Matching files are grouped into **scenes**: for example, a camera clip and its audio take, or a whole multicam podcast. Each scene is synced, and the scenes are laid out on the timeline in their current order, 2 seconds apart. You don't need one master recording that covers everything.
+WaveSync compares every file with every other file and groups matching files into **scenes**: for example, a camera clip with its audio takes, or a whole multicam podcast. You don't need one master recording that covers everything.
 
-| Result | Meaning |
+It then rebuilds the timeline:
+
+- **One track per device.** Each camera gets its own video track, with its audio below. Each audio recorder gets its own audio track. Devices are recognized from how you laid the clips out, the file-name pattern (`C0449.MP4`, `TX01_MIC004_….wav`) and the media format.
+- **Overlapping clips get their own track.** If two clips from the same device would overlap after syncing, the second one moves to an extra track.
+- **Color labels.** Each device gets its own label color, on the timeline clips and in the Project panel.
+- **Scenes run in order,** 2 seconds apart.
+
+### The sync report
+
+After syncing, the panel shows clips synced, time taken, and clips that didn't sync. Everything below updates the timeline straight away.
+
+| Setting | Options |
 |---|---|
-| anchor | The file the rest of the scene is lined up to |
-| +0:01.914 (green) | Synced with high confidence |
-| (check) (yellow) | Synced, but give it a quick look |
-| No match found (red) | No matching audio. The clip is placed in order but not synced |
+| Camera audio | **Keep**, **Mute** (kept but switched off), or **Delete** (mics then start at A1) |
+| Unused audio | Audio with no matching video is **Parked at end**, **Kept in order**, or **Removed** |
+| Trim audio | **To video** (recorder files are cut to the length of their scene's video) or **Full length** |
+| Link groups | **Camera + its audio**, or **Camera + mic audio** (each mic clip is linked to the camera clip it overlaps most) |
+| Track layout | **Per device**, or **Compact** (fewest tracks) |
+| Use these settings from now on | Saves them as the default for every new sync |
 
-To undo, open the backup sequence ("<your sequence> - Backup") in your Project panel. Your original sequence stays open while you sync.
+- **Track order:** each device row has a color picker, a **‹ ›** nudge that moves that device one frame earlier or later, and a track menu. Picking another device's tracks swaps the two.
+- **Sequences:** **Synced** and **Original** switch between the synced sequence and the backup, and **Duplicate sequence** makes a copy.
+- **More info:** shows every scene's offsets.
+
+To undo everything, open the backup sequence ("<your sequence> - Backup") in your Project panel.
 
 ## Limits
 
-- The panel won't move a clip on top of another clip. If anything would overlap, it stops and tells you which clips are in the way.
-- Clips with speed changes, nested sequences, and graphics are skipped.
+- Clips are placed again at full length, so trims you made before syncing are not kept. The backup sequence has your original.
+- Premiere's scripting can't create multicam source sequences, so there is no "Create Multicam" button.
+- Clips with speed changes, nested sequences, and graphics are left where they are. The synced layout starts above them, so nothing of yours is overwritten.
 - Video clips snap to frame boundaries, so sync accuracy is about half a frame.
 - Clock drift on very long takes is reported but not corrected.
 
 ## How it works
 
 - `js/synccore.js`: sync math, with no dependencies. A coarse pass cross-correlates 100 Hz loudness envelopes. A fine pass runs GCC-PHAT on the 8 kHz waveform for sub-millisecond offsets. Files are matched pairwise and joined into scenes with a maximum spanning forest.
-- `js/main.js`: panel logic. Runs ffmpeg and talks to Premiere.
-- `jsx/host.jsx`: Premiere scripting. Reads clips and moves them.
+- `js/layout.js`: turns sync results into a timeline plan: scene positions, device detection, one lane per device with extra lanes for overlaps, trims, parking, nudges.
+- `js/main.js`: panel logic. Runs ffmpeg/ffprobe, talks to Premiere, and draws the sync report.
+- `jsx/host.jsx`: Premiere scripting. Reads clips and rebuilds the timeline from the plan (tracks, labels, camera audio, links).
+- `test/layout.test.js`: offline tests for the layout. Run with `jsc test/layout.test.js -- js/layout.js` (macOS: `/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc`).
 - `CSXS/manifest.xml`: CEP panel registration.
 
 ## Development
