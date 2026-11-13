@@ -286,8 +286,9 @@ var WaveSync = (function () {
       var tracks = {}, placed = [], warnings = [], cameraAudio = [], scenes = {};
 
       function note(dev, kind, n) {
-        var t = tracks[dev] = tracks[dev] || { v: [], a: [] };
-        if (t[kind].indexOf(n + 1) < 0) t[kind].push(n + 1);
+        var t = tracks[dev] = tracks[dev] || { v: [], a: [] }, list = t[kind];
+        for (var x = 0; x < list.length; x++) if (list[x] === n + 1) return;   // ExtendScript has no Array.indexOf
+        list.push(n + 1);
       }
 
       function placeAudioLanes() {
@@ -299,7 +300,7 @@ var WaveSync = (function () {
             for (var x = 0; x < r.audio.length; x++) {
               var tr = audioTrackOf(app.project.activeSequence, r.audio[x]);
               span = Math.max(span, tr - curA + 1);
-              note(lane.device, 'a', tr);
+              note(lane.clips[c].device || lane.device, 'a', tr);
               placed.push(r.audio[x].nodeId);
               (scenes[lane.clips[c].scene] = scenes[lane.clips[c].scene] || { v: [], mics: [] }).mics.push(r.audio[x]);
             }
@@ -315,7 +316,7 @@ var WaveSync = (function () {
             var r = placeClip(lane.clips[c], true, vIdx, curA);
             if (r.warning) warnings.push(r.warning);
             if (r.video) {
-              note(lane.device, 'v', vIdx);
+              note(lane.clips[c].device || lane.device, 'v', vIdx);
               placed.push(r.video.nodeId);
               (scenes[lane.clips[c].scene] = scenes[lane.clips[c].scene] || { v: [], mics: [] })
                 .v.push({ item: r.video, audio: r.audio });
@@ -323,7 +324,7 @@ var WaveSync = (function () {
             for (var x = 0; x < r.audio.length; x++) {
               var tr = audioTrackOf(app.project.activeSequence, r.audio[x]);
               span = Math.max(span, tr - curA + 1);
-              if (plan.cameraAudio !== 'delete') note(lane.device, 'a', tr);
+              if (plan.cameraAudio !== 'delete') note(lane.clips[c].device || lane.device, 'a', tr);
               cameraAudio.push(r.audio[x]);
             }
           }

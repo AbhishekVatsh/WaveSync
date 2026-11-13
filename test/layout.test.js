@@ -68,6 +68,7 @@ check('D: overlapping audio split onto 2 tracks', plan.audioLanes.length === 2, 
 check('D: nothing overlaps', overlapsWithin(plan.audioLanes, plan.pos) === 0);
 var planC = Layout.buildPlan(media, groups, devs, { layout: 'compact', unusedAudio: 'park' }, 0.04);
 check('D: compact layout also avoids overlaps', overlapsWithin(planC.audioLanes, planC.pos) === 0 && planC.audioLanes.length === 2);
+check('D: compact clips still name their device', planC.audioLanes.every(function (l) { return l.clips.every(function (c) { return c.device === devs[1].id; }); }));
 
 // --- E: nudge moves one device by frames ---
 devs[0].nudge = 2;

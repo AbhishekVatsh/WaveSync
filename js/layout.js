@@ -185,16 +185,18 @@
     function lanesFor(list, kind) {
       var out = [];
       if (settings.layout === 'compact') {
-        var ids = [], colorOf = {};
-        list.forEach(function (d) { d.files.forEach(function (id) { if (pos[id]) { ids.push(id); colorOf[id] = d.color; } }); });
+        var ids = [], devOf = {};
+        list.forEach(function (d) { d.files.forEach(function (id) { if (pos[id]) { ids.push(id); devOf[id] = d; } }); });
         packLanes(ids, pos).forEach(function (lane, i) {
-          out.push({ device: kind + '-lane-' + i, clips: lane.map(function (id) { var c = clipOf(id); c.color = colorOf[id]; return c; }) });
+          out.push({ device: kind + '-lane-' + i, clips: lane.map(function (id) {
+            var c = clipOf(id); c.color = devOf[id].color; c.device = devOf[id].id; return c;
+          }) });
         });
         return out;
       }
       list.forEach(function (d) {
         packLanes(d.files.filter(function (id) { return pos[id]; }), pos).forEach(function (lane) {
-          out.push({ device: d.id, clips: lane.map(function (id) { var c = clipOf(id); c.color = d.color; return c; }) });
+          out.push({ device: d.id, clips: lane.map(function (id) { var c = clipOf(id); c.color = d.color; c.device = d.id; return c; }) });
         });
       });
       return out;

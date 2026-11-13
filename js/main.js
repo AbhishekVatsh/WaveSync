@@ -220,7 +220,7 @@
       return list.map(function (l) {
         return { device: l.device, clips: l.clips.map(function (c) {
           return { path: c.id, start: c.start, mediaIn: c.mediaIn, mediaOut: c.mediaOut,
-                   trimmed: c.trimmed, scene: c.scene, color: c.color };
+                   trimmed: c.trimmed, scene: c.scene, color: c.color, device: c.device };
         }) };
       });
     }
